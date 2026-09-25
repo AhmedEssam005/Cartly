@@ -12,8 +12,6 @@ router.post(
 router.get(
 	"/me",
 	isAuth,
-	authValidator.meValidator,
-	commonValidator,
 	authController.me,
 );
 

@@ -63,7 +63,7 @@ const sellerInfo = pgTable("seller_info", {
 	userId: uuid("user_id")
 		.primaryKey()
 		.references(() => profile.profileId, {
-			onDelete: "cascade",
+			onDelete: "no action",
 		}),
 
 	nationalId: varchar("national_id", {

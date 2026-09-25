@@ -11,13 +11,19 @@ app.use(cors());
 app.use(helmet());
 app.use(morganMiddleware);
 app.use("/api/auth", authRoutes);
-
+app.use("/", (req, res) => {
+	res.status(404).json({ message: "Route not found" });
+});
 app.use((err, req, res, next) => {
 	const statusCode = err.statusCode || 500;
 	const message = err.message || "Something Went Wrong";
-	logger.error(
-		`${req.method} ${req.originalUrl} ${statusCode}: ${message}`,
-	);
+	logger.error("Request failed", {
+		message: err.message,
+		stack: err.stack,
+		method: req.method,
+		url: req.originalUrl,
+		statusCode,
+	});
 	res.status(statusCode).json({
 		message: statusCode >= 500 ? "Internal Server Error" : message,
 		errors: err.details ? err.details : {},

@@ -46,7 +46,10 @@ exports.registerUser = async (userData) => {
 			profile: newProfile,
 		};
 	} catch (err) {
-		logger.error("Profile creation failed:", err);
+		logger.error("Profile creation failed:", {
+			error: err.message,
+			stack: err.stack,
+		});
 		const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(
 			data.user.id,
 		);

@@ -11,7 +11,6 @@ const SUPABASE_JWKS = createRemoteJWKSet(
 module.exports = async (req, res, next) => {
 	try {
 		const authHeader = req.headers.authorization;
-		console.log("Authorization Header:", authHeader); // Log the Authorization header for debugging
 		if (!authHeader) {
 			const error = new Error("Unauthorized: Missing Authorization header");
 			error.statusCode = 401;
