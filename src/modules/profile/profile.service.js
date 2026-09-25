@@ -16,13 +16,13 @@ exports.addAddress = async (addressData, profileId) => {
 		country,
 	} = addressData;
 	try {
-		await db.transaction(async (trx) => {
+		return await db.transaction(async (trx) => {
 			const [{ count: addressCount }] = await trx
 				.select({ count: count(addresses.addressId) })
 				.from(addresses)
 				.where(eq(addresses.userId, profileId));
 
-			const isDefault = addressCount === 0;
+			const isDefault = Number(addressCount) === 0;
 			const [newAddress] = await trx
 				.insert(addresses)
 				.values({
@@ -42,7 +42,6 @@ exports.addAddress = async (addressData, profileId) => {
 			return newAddress;
 		});
 
-		return newAddress;
 	} catch (error) {
 		throw error;
 	}

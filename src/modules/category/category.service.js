@@ -4,9 +4,9 @@ const {
 	catalogProductCategories,
 } = require("../../db/schema/schema");
 
-const { eq, sql, count } = require("drizzle-orm");
+const { eq, isNull, sql, count } = require("drizzle-orm");
 
-exports.getCategory = async (parentCategoryId) => {
+exports.getCategories = async (parentCategoryId) => {
 	const category = await db
 		.select({
 			categoryId: categories.categoryId,
@@ -15,7 +15,11 @@ exports.getCategory = async (parentCategoryId) => {
 			slug: categories.slug,
 		})
 		.from(categories)
-		.where({ parentCategoryId: parentCategoryId ? parentCategoryId : null })
+		.where(
+			parentCategoryId === null
+				? isNull(categories.parentCategoryId)
+				: eq(categories.parentCategoryId, parentCategoryId),
+		)
 		.execute();
 	return category;
 };
@@ -73,15 +77,15 @@ exports.addCategory = async (categoryData, parentCategoryId) => {
 };
 
 exports.deleteCategory = async (categoryId) => {
-	await db.transaction(async (trx) => {
-		const [{ count }] = await trx
+	const deletedCategory = await db.transaction(async (trx) => {
+		const [{ count: categoryCount }] = await trx
 			.select({
 				count: count(catalogProductCategories.catalogProductId),
 			})
 			.from(catalogProductCategories)
 			.where(eq(catalogProductCategories.categoryId, categoryId))
 			.execute();
-		if (count) {
+		if (Number(categoryCount) > 0) {
 			const error = new Error(
 				"Cannot delete category with associated products.",
 			);
@@ -99,6 +103,7 @@ exports.deleteCategory = async (categoryId) => {
 		error.statusCode = 404;
 		throw error;
 	}
+	return deletedCategory;
 };
 
 exports.updateCategory = async (categoryData, parentCategoryId) => {
@@ -144,11 +149,16 @@ exports.updateCategory = async (categoryData, parentCategoryId) => {
 	const [updatedCategory] = await db
 		.update(categories)
 		.set({
-			parentCategoryId: parentCategoryId ? parentCategoryId : null,
+			parentCategoryId: parentCategoryId ?? null,
 			name,
 			slug,
 		})
 		.where(eq(categories.categoryId, categoryId))
 		.returning();
+	if (!updatedCategory) {
+		const error = new Error("Category not found");
+		error.statusCode = 404;
+		throw error;
+	}
 	return updatedCategory;
 };

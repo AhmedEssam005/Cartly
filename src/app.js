@@ -3,6 +3,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const morganMiddleware = require("./middlewares/morgan");
 const authRoutes = require("./modules/auth/auth.routes");
+const categoryRoutes = require("./modules/category/category.route");
+const profileRoutes = require("./modules/profile/profile.route");
 const logger = require("./configs/logger");
 const app = express();
 
@@ -11,6 +13,8 @@ app.use(cors());
 app.use(helmet());
 app.use(morganMiddleware);
 app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/", (req, res) => {
 	res.status(404).json({ message: "Route not found" });
 });
