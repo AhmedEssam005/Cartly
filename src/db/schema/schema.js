@@ -174,6 +174,7 @@ const catalogProducts = pgTable("catalog_products", {
 });
 
 const catalogProductCategories = pgTable(
+	"catalog_product_categories",
 	{
 		catalogProductId: bigint("catalog_product_id", {
 			mode: "number",
