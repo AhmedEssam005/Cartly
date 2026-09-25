@@ -12,11 +12,9 @@ const colors = {
 winston.addColors(colors);
 
 const format = winston.format.combine(
-	winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-	winston.format.printf(
-		(info) =>
-			`[${info.timestamp}] [${info.level.toUpperCase()}]: ${info.message}`,
-	),
+	winston.format.timestamp(),
+	winston.format.errors({ stack: true }),
+	winston.format.json(),
 );
 
 const transports = [

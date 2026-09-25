@@ -34,7 +34,7 @@ module.exports = async (req, res, next) => {
 			id: payload.sub,
 		};
 
-		logger.info(`User authenticated: ${req.user.id}`);	
+		logger.info(`User authenticated with ID: ${req.user.id}`);
 		next();
 	} catch (err) {
 		console.log(err);

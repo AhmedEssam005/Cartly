@@ -55,10 +55,17 @@ exports.registerUser = async (userData) => {
 		);
 
 		if (deleteError) {
-			logger.error("CRITICAL: Failed to rollback Auth user:", deleteError);
+			logger.error("CRITICAL: Failed to rollback Auth user:", {
+				error: deleteError.message,
+				stack: deleteError.stack,
+				userId: data.user.id,
+			});
 		}
 		logger.info(
 			"Rolled back Auth user creation due to profile creation failure.",
+			{
+				userId: data.user.id,
+			},
 		);
 		throw new Error("Failed to register your account. Please try again.");
 	}

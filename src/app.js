@@ -19,6 +19,7 @@ app.use((err, req, res, next) => {
 	const message = err.message || "Something Went Wrong";
 	logger.error("Request failed", {
 		message: err.message,
+		detail: err.details ? err.details : {},
 		stack: err.stack,
 		method: req.method,
 		url: req.originalUrl,
