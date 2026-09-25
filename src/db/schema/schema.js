@@ -13,6 +13,8 @@ const {
 	unique,
 	foreignKey,
 	check,
+	uniqueIndex,
+	primaryKey,
 } = require("drizzle-orm/pg-core");
 const { sql } = require("drizzle-orm");
 
@@ -134,6 +136,7 @@ const categories = pgTable(
 		foreignKey({
 			columns: [table.parentCategoryId],
 			foreignColumns: [table.categoryId],
+			onDelete: "set null",
 			name: "fk_categories_parent",
 		}),
 
@@ -147,13 +150,6 @@ const catalogProducts = pgTable("catalog_products", {
 	})
 		.generatedAlwaysAsIdentity()
 		.primaryKey(),
-
-	categoryId: bigint("category_id", {
-		mode: "number",
-	})
-		.notNull()
-		.references(() => categories.categoryId),
-
 	sku: varchar("sku", {
 		length: 255,
 	})
@@ -176,6 +172,33 @@ const catalogProducts = pgTable("catalog_products", {
 		.notNull()
 		.defaultNow(),
 });
+
+const catalogProductCategories = pgTable(
+	{
+		catalogProductId: bigint("catalog_product_id", {
+			mode: "number",
+		})
+			.notNull()
+			.references(() => catalogProducts.catalogProductId, {
+				onDelete: "cascade",
+			}),
+		categoryId: bigint("category_id", {
+			mode: "number",
+		})
+			.notNull()
+			.references(() => categories.categoryId),
+	},
+	(table) => [
+		primaryKey({
+			name: "pk_catalog_product_categories",
+			columns: [table.catalogProductId, table.categoryId],
+		}),
+		index("idx_catalog_product_categories_catalogId").on(
+			table.catalogProductId,
+		),
+		index("idx_catalog_product_categories_categoryId").on(table.categoryId),
+	],
+);
 
 const sellerListings = pgTable(
 	"seller_listings",
@@ -412,7 +435,12 @@ const addresses = pgTable(
 			.notNull()
 			.defaultNow(),
 	},
-	(table) => [index("idx_addresses_user_id").on(table.userId)],
+	(table) => [
+		index("idx_addresses_user_id").on(table.userId),
+		uniqueIndex("uq_idx_addresses_user_default")
+			.on(table.userId)
+			.where(sql`${table.isDefault} = true`),
+	],
 );
 
 const orders = pgTable(
@@ -783,4 +811,5 @@ module.exports = {
 	reviews,
 	reviewImages,
 	reviewLikes,
+	catalogProductCategories,
 };
