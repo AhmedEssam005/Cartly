@@ -4,18 +4,12 @@ const catalogSubmissionValidator = require("./catalogSubmission.validator");
 const commonValidator = require("../../middlewares/commonValidator");
 const isAuth = require("../../middlewares/isAuth");
 const isAdmin = require("../../middlewares/isAdmin");
-
-router.get(
-	"/:submissionId",
-	isAuth,
-	catalogSubmissionValidator.getCatalogSubmissionByIdValidator,
-	commonValidator,
-	catalogSubmissionController.getCatalogSubmissionById,
-);
+const isSeller = require("../../middlewares/isSeller");
 
 router.get(
 	"/seller",
 	isAuth,
+	isSeller,
 	catalogSubmissionController.getSellerCatalogSubmissions,
 );
 
@@ -24,6 +18,14 @@ router.get(
 	isAuth,
 	isAdmin,
 	catalogSubmissionController.getPendingCatalogSubmissions,
+);
+router.get(
+	"/:submissionId",
+	isAuth,
+    isAdmin,
+	catalogSubmissionValidator.getCatalogSubmissionByIdValidator,
+	commonValidator,
+	catalogSubmissionController.getCatalogSubmissionById,
 );
 
 router.patch(
@@ -38,6 +40,7 @@ router.patch(
 router.post(
 	"/",
 	isAuth,
+    isSeller,
 	catalogSubmissionValidator.createCatalogSubmissionValidator,
 	commonValidator,
 	catalogSubmissionController.createCatalogSubmission,

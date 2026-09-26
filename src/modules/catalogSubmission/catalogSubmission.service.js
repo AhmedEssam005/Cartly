@@ -53,7 +53,7 @@ exports.rejectCatalogSubmission = async (
 		.update(catalogSubmissions)
 		.set({
 			status: "rejected",
-			reviewerId,
+			reviewerBy: reviewerId,
 			reviewComment,
 			reviewedAt: new Date(),
 		})
@@ -177,7 +177,7 @@ exports.approveCatalogSubmission = async (
 			.update(catalogSubmissions)
 			.set({
 				status: "approved",
-				reviewerId,
+				reviewerBy: reviewerId,
 				reviewComment,
 				reviewedAt: new Date(),
 			})

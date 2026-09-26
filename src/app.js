@@ -6,6 +6,7 @@ const authRoutes = require("./modules/auth/auth.routes");
 const categoryRoutes = require("./modules/category/category.route");
 const profileRoutes = require("./modules/profile/profile.route");
 const catalogRoutes = require("./modules/catalog/catalog.route");
+const submissionRoutes = require("./modules/catalogSubmission/catalogSubmission.route");
 const logger = require("./configs/logger");
 const app = express();
 
@@ -17,6 +18,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/catalog", catalogRoutes);
+app.use("/api/catalog-submissions", submissionRoutes);
 app.use("/", (req, res) => {
 	res.status(404).json({ message: "Route not found" });
 });
