@@ -4,7 +4,9 @@ const logger = require("../../configs/logger");
 exports.getAllBrands = async (req, res, next) => {
 	try {
 		const { page, limit, search } = req.query;
-		const offset = Number((Number(page) - 1) * Number(limit));
+		const pageNum = Number(page) || 1;
+		const limitNum = Number(limit) || 20;
+		const offset = (pageNum - 1) * limitNum;
 		const brandsList = await catalogService.getAllBrands(search, limit, offset);
 		logger.info(`Retrieved ${brandsList.length} brands from the catalog`);
 		res.status(200).json(brandsList);
@@ -48,7 +50,9 @@ exports.getCatalogProductByGtin = async (req, res, next) => {
 exports.getCatalogProducts = async (req, res, next) => {
 	try {
 		const { page, limit, search, brand, categoryId } = req.query;
-		const offset = Number((Number(page) - 1) * Number(limit));
+		const pageNum = Number(page) || 1;
+		const limitNum = Number(limit) || 20;
+		const offset = (pageNum - 1) * limitNum;
 		const productsList = await catalogService.getCatalogProducts(
 			search,
 			brand,

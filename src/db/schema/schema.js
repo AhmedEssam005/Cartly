@@ -246,6 +246,34 @@ const catalogSubmissionsImages = pgTable(
 	],
 );
 
+const catalogSubmissionCategories = pgTable(
+	"catalog_submission_categories",
+	{
+		submissionId: bigint("submission_id", {
+			mode: "number",
+		})
+			.notNull()
+			.references(() => catalogSubmissions.submissionId, {
+				onDelete: "cascade",
+			}),
+		categoryId: bigint("category_id", {
+			mode: "number",
+		})
+			.notNull()
+			.references(() => categories.categoryId),
+	},
+	(table) => [
+		primaryKey({
+			name: "pk_catalog_submission_categories",
+			columns: [table.submissionId, table.categoryId],
+		}),
+		index("idx_catalog_submission_categories_submission_id").on(
+			table.submissionId,
+		),
+		index("idx_catalog_submission_categories_category_id").on(table.categoryId),
+	],
+);
+
 const catalogProductCategories = pgTable(
 	"catalog_product_categories",
 	{
@@ -891,4 +919,5 @@ module.exports = {
 	catalogProductCategories,
 	catalogSubmissions,
 	catalogSubmissionsImages,
+	catalogSubmissionCategories,
 };

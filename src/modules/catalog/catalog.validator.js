@@ -49,27 +49,31 @@ exports.createCatalogProductValidator = [
 		.withMessage("Title is required and must be a string"),
 	body("brand").notEmpty().isString().withMessage("Brand must be a string"),
 	body("description")
-		.optional()
+		.notEmpty()
 		.isString()
 		.withMessage("Description must be a string"),
 	body("gtin")
-		.notEmpty()
+		.optional()
 		.isString({ min: 8 })
 		.withMessage(
 			"GTIN is required and must be a valid string with at least 8 characters",
 		),
 	body("images")
-		.optional()
 		.isArray({ min: 1 })
 		.withMessage(
 			"Images are required and must be an array with at least one element",
 		),
+	body("images.*")
+		.isString()
+		.withMessage("Each image must be a valid string (URL)"),
 	body("productCategories")
-		.optional()
 		.isArray({ min: 1 })
 		.withMessage(
 			"Product categories are required and must be an array with at least one element",
 		),
+	body("productCategories.*")
+		.isInt()
+		.withMessage("Each product category must be a valid integer"),
 ];
 
 exports.updateCatalogProductValidator = [
