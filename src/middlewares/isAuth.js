@@ -37,7 +37,7 @@ module.exports = async (req, res, next) => {
 		logger.info(`User authenticated with ID: ${req.user.id}`);
 		next();
 	} catch (err) {
-		console.log(err);
+		err.statusCode = err.statusCode || 401;
 		next(err);
 	}
 };

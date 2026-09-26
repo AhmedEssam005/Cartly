@@ -8,4 +8,5 @@ module.exports = (req, res, next) => {
 		error.details = errors.array();
 		return next(error);
 	}
+	next();
 };
