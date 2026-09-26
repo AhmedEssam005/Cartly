@@ -43,6 +43,41 @@
       "when": 1790366130513,
       "tag": "0005_unique_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790407676400,
+      "tag": "0006_clever_banshee",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790407809196,
+      "tag": "0007_third_guardsmen",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790408138875,
+      "tag": "0008_wise_kinsey_walden",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790408260630,
+      "tag": "0009_mean_wildside",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1790413515380,
+      "tag": "0010_sweet_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

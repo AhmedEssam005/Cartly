@@ -1,0 +1,1 @@
+ALTER TABLE "catalog_products" ADD COLUMN "is_hidden" boolean DEFAULT false NOT NULL;

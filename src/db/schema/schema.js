@@ -25,6 +25,7 @@ const {
 	fulfillmentStatus,
 	paymentStatus,
 	paymentProvider,
+	requestStatus,
 } = require("./enums");
 
 const { authUsers } = require("drizzle-orm/supabase");
@@ -144,17 +145,54 @@ const categories = pgTable(
 	],
 );
 
-const catalogProducts = pgTable("catalog_products", {
-	catalogProductId: bigint("catalog_product_id", {
+const catalogProducts = pgTable(
+	"catalog_products",
+	{
+		catalogProductId: bigint("catalog_product_id", {
+			mode: "number",
+		})
+			.generatedAlwaysAsIdentity()
+			.primaryKey(),
+
+		gtin: varchar("gtin", {
+			length: 14,
+		}).unique(),
+
+		title: varchar("title", {
+			length: 255,
+		}).notNull(),
+
+		description: text("description").notNull(),
+
+		isHidden: boolean("is_hidden").notNull().default(false),
+
+		brand: varchar("brand", {
+			length: 255,
+		}).notNull(),
+
+		createdAt: timestamp("created_at", {
+			withTimezone: true,
+		})
+			.notNull()
+			.defaultNow(),
+	},
+	(table) => [index("idx_catalog_products_gtin").on(table.gtin)],
+);
+
+const catalogSubmissions = pgTable("catalog_submissions", {
+	submissionId: bigint("request_id", {
 		mode: "number",
 	})
 		.generatedAlwaysAsIdentity()
 		.primaryKey(),
-	sku: varchar("sku", {
-		length: 255,
-	})
+
+	sellerId: uuid("seller_id")
 		.notNull()
-		.unique(),
+		.references(() => sellerInfo.userId),
+
+	brand: varchar("brand", {
+		length: 255,
+	}).notNull(),
 
 	title: varchar("title", {
 		length: 255,
@@ -162,16 +200,51 @@ const catalogProducts = pgTable("catalog_products", {
 
 	description: text("description").notNull(),
 
-	brand: varchar("brand", {
-		length: 255,
-	}).notNull(),
+	gtin: varchar("gtin", {
+		length: 14,
+	}),
+	status: requestStatus("status").notNull().default("pending"),
 
+	reviewerBy: uuid("reviewer_id").references(() => profile.profileId),
+	reviewComment: text("review_comment"),
+	reviewedAt: timestamp("reviewed_at", {
+		withTimezone: true,
+	}),
 	createdAt: timestamp("created_at", {
 		withTimezone: true,
 	})
 		.notNull()
 		.defaultNow(),
 });
+
+const catalogSubmissionsImages = pgTable(
+	"catalog_submission_images",
+	{
+		imageId: bigint("image_id", {
+			mode: "number",
+		})
+			.generatedAlwaysAsIdentity()
+			.primaryKey(),
+		imageUrl: varchar("image_url", {
+			length: 255,
+		}).notNull(),
+		submissionId: bigint("submission_id", {
+			mode: "number",
+		})
+			.notNull()
+			.references(() => catalogSubmissions.submissionId, {
+				onDelete: "cascade",
+			}),
+		displayOrder: smallint("display_order").notNull().default(0),
+		isPrimary: boolean("is_primary").notNull().default(false),
+	},
+	(table) => [
+		index("idx_catalog_submission_images_submission_id").on(table.submissionId),
+		uniqueIndex("uq_catalog_submission_images_submission_primary")
+			.on(table.submissionId)
+			.where(sql`${table.isPrimary} = true`),
+	],
+);
 
 const catalogProductCategories = pgTable(
 	"catalog_product_categories",
@@ -210,6 +283,9 @@ const sellerListings = pgTable(
 			.generatedAlwaysAsIdentity()
 			.primaryKey(),
 
+		sku: varchar("sku", {
+			length: 64,
+		}).notNull(),
 		sellerId: uuid("seller_id")
 			.notNull()
 			.references(() => sellerInfo.userId),
@@ -247,7 +323,7 @@ const sellerListings = pgTable(
 			table.sellerId,
 			table.catalogProductId,
 		),
-
+		unique("uq_seller_listings_sku").on(table.sku, table.sellerId),
 		index("idx_seller_listings_catalog_product_id").on(table.catalogProductId),
 
 		index("idx_seller_listings_seller_id").on(table.sellerId),
@@ -813,4 +889,6 @@ module.exports = {
 	reviewImages,
 	reviewLikes,
 	catalogProductCategories,
+	catalogSubmissions,
+	catalogSubmissionsImages,
 };
