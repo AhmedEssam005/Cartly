@@ -41,7 +41,9 @@ exports.getCatalogProductById = async (productId) => {
 		.from(catalogProducts)
 		.where(eq(catalogProducts.catalogProductId, productId));
 	if (!product) {
-		throw new Error("Catalog product not found");
+		const error = new Error("Catalog product not found");
+		error.statusCode = 404;
+		throw error;
 	}
 	return product;
 };
@@ -52,7 +54,9 @@ exports.getCatalogProductByGtin = async (gtin) => {
 		.from(catalogProducts)
 		.where(eq(catalogProducts.gtin, gtin));
 	if (!product) {
-		throw new Error("Catalog product not found");
+		const error = new Error("Catalog product not found");
+		error.statusCode = 404;
+		throw error;
 	}
 	return product;
 };
@@ -113,7 +117,9 @@ exports.createCatalogProduct = async (productData) => {
 			})
 			.returning();
 		if (!newProduct) {
-			throw new Error("Failed to create catalog product");
+			const error = new Error("Failed to create catalog product");
+			error.statusCode = 500;
+			throw error;
 		}
 		if (images && images.length > 0) {
 			const imagesToInsert = images.map((image, index) => ({
@@ -153,7 +159,9 @@ exports.updateCatalogProduct = async (productId, productData) => {
 			.returning();
 
 		if (!updatedProduct) {
-			throw new Error("Catalog product not found");
+			const error = new Error("Catalog product not found");
+			error.statusCode = 404;
+			throw error;
 		}
 
 		if (images !== undefined) {

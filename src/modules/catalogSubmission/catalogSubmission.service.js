@@ -18,7 +18,9 @@ exports.getCatalogSubmissionById = async (submissionId) => {
 		.where(eq(catalogSubmissions.submissionId, submissionId));
 
 	if (!submission) {
-		throw new Error("Catalog submission not found");
+		const error = new Error("Catalog submission not found");
+		error.statusCode = 404;
+		throw error;
 	}
 
 	return submission;
@@ -66,7 +68,9 @@ exports.rejectCatalogSubmission = async (
 		.returning();
 
 	if (!updatedSubmission) {
-		throw new Error("Catalog submission not found");
+		const error = new Error("Catalog submission not found");
+		error.statusCode = 404;
+		throw error;
 	}
 
 	return updatedSubmission;
@@ -126,7 +130,9 @@ exports.approveCatalogSubmission = async (
 			);
 
 		if (!submission) {
-			throw new Error("Catalog submission not found");
+			const error = new Error("Catalog submission not found");
+			error.statusCode = 404;
+			throw error;
 		}
 
 		const [catalogProduct] = await trx
@@ -140,7 +146,9 @@ exports.approveCatalogSubmission = async (
 			.returning();
 
 		if (!catalogProduct) {
-			throw new Error("Failed to create catalog product");
+			const error = new Error("Failed to create catalog product");
+			error.statusCode = 500;
+			throw error;
 		}
 
 		const submissionCategories = await trx
@@ -190,7 +198,9 @@ exports.approveCatalogSubmission = async (
 			.returning();
 
 		if (!updatedSubmission) {
-			throw new Error("Failed to approve catalog submission");
+			const error = new Error("Catalog submission not found");
+			error.statusCode = 404;
+			throw error;
 		}
 
 		return {

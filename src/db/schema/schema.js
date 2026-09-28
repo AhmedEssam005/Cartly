@@ -314,6 +314,7 @@ const sellerListings = pgTable(
 		sku: varchar("sku", {
 			length: 64,
 		}).notNull(),
+		
 		sellerId: uuid("seller_id")
 			.notNull()
 			.references(() => sellerInfo.userId),
@@ -329,8 +330,6 @@ const sellerListings = pgTable(
 		price: bigint("price", {
 			mode: "number",
 		}).notNull(),
-
-		customDescription: text("custom_description").notNull(),
 
 		isActive: boolean("is_active").notNull().default(true),
 
@@ -389,32 +388,6 @@ const productImages = pgTable(
 	(table) => [
 		index("idx_product_images_catalog_product_id").on(table.catalogProductId),
 	],
-);
-
-const listingImages = pgTable(
-	"listing_images",
-	{
-		imageId: bigint("image_id", {
-			mode: "number",
-		})
-			.generatedAlwaysAsIdentity()
-			.primaryKey(),
-
-		listingId: bigint("listing_id", {
-			mode: "number",
-		})
-			.notNull()
-			.references(() => sellerListings.listingId),
-
-		imageUrl: varchar("image_url", {
-			length: 255,
-		}).notNull(),
-
-		isPrimary: boolean("is_primary").notNull().default(false),
-
-		displayOrder: smallint("display_order").notNull().default(0),
-	},
-	(table) => [index("idx_listing_images_listing_id").on(table.listingId)],
 );
 
 const cart = pgTable(
@@ -904,7 +877,6 @@ module.exports = {
 	catalogProducts,
 	sellerListings,
 	productImages,
-	listingImages,
 	cart,
 	cartListing,
 	addresses,
