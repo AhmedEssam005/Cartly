@@ -6,7 +6,7 @@ const {
 	productImages,
 	categories,
 } = require("../../db/schema/schema");
-const { eq, and } = require("drizzle-orm");
+const { eq, and, sql } = require("drizzle-orm");
 
 exports.addSellerListing = async (sellerListingData) => {
 	// error handling in controller - violation constraint -
@@ -74,7 +74,7 @@ exports.getSellerListingsBySellerId = async (sellerId) => {
 			listingId: sellerListings.listingId,
 			sellerId: sellerListings.sellerId,
 			sku: sellerListings.sku,
-			price: sellerListings.price / 100, // Convert price from piasters to dollars
+			price: sql`${sellerListings.price} / 100.0`.mapWith(Number), // Convert price from piasters to dollars
 			inventory: sellerListings.inventory,
 			isActive: sellerListings.isActive,
 			image: productImages.imageUrl,
@@ -100,7 +100,7 @@ exports.getListingById = async (listingId, sellerId) => {
 			listingId: sellerListings.listingId,
 			sellerId: sellerListings.sellerId,
 			sku: sellerListings.sku,
-			price: sellerListings.price / 100, // Convert price from piasters to dollars
+			price: sql`${sellerListings.price} / 100.0`.mapWith(Number), // Convert price from piasters to dollars
 			isActive: sellerListings.isActive,
 			inventory: sellerListings.inventory,
 

@@ -54,3 +54,6 @@ router.patch(
 	commonValidator,
 	catalogSubmissionController.approveCatalogSubmission,
 );
+
+
+module.exports = router;

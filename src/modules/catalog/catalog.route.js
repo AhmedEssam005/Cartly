@@ -65,3 +65,5 @@ router.delete(
 	commonValidator,
 	catalogController.softDeleteCatalogProduct,
 );
+
+module.exports = router;

@@ -25,41 +25,36 @@ app.use("/api/seller-listings", sellerListingRoutes);
 app.use("/", (req, res) => {
 	res.status(404).json({ message: "Route not found" });
 });
-
 app.use((err, req, res, next) => {
+	const pgErr = err.cause ?? err;
 	let statusCode = err.statusCode || 500;
 	let message = err.message || "Something Went Wrong";
-	let detail = err.detail || {};
+	let clientErrors = err.statusCode === 422 && err.detail ? err.detail : {};
 
-	switch (err.code || err.name) {
+	switch (pgErr.code) {
 		case "23505":
 			statusCode = 409;
-			message = "Duplicate entry";
-			detail = err.detail || "A record with this value already exists.";
+			message = "A record with this value already exists";
 			break;
-
 		case "23503":
 			statusCode = 400;
-			message = "Invalid reference";
-			detail = err.detail || "Referenced resource does not exist.";
+			message = "Referenced resource does not exist";
 			break;
-
 		case "23502":
 			statusCode = 400;
-			message = "Missing required field";
-			detail = `Column '${err.column}' cannot be null.`;
+			message = "A required field is missing";
 			break;
-
 		case "22P02":
 			statusCode = 400;
 			message = "Invalid parameter format";
-			detail = err.message;
 			break;
 	}
 
 	logger.error("Request failed", {
 		message: err.message,
-		detail: detail,
+		dbCode: pgErr.code,
+		dbDetail: pgErr.detail,
+		validation: err.statusCode === 422 ? err.detail : undefined,
 		stack: err.stack,
 		method: req.method,
 		url: req.originalUrl,
@@ -68,7 +63,7 @@ app.use((err, req, res, next) => {
 
 	res.status(statusCode).json({
 		message: statusCode >= 500 ? "Internal Server Error" : message,
-		errors: detail,
+		errors: clientErrors,
 	});
 });
 
