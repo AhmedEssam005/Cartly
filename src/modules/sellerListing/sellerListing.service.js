@@ -40,7 +40,7 @@ exports.addSellerListing = async (sellerListingData) => {
 			inventory,
 		})
 		.returning();
-	return newListing;
+	return { ...newListing, price: newListing.price / 100 };
 };
 
 exports.updateSellerListing = async (sellerListingData) => {
@@ -64,7 +64,7 @@ exports.updateSellerListing = async (sellerListingData) => {
 		error.statusCode = 404;
 		throw error;
 	}
-	return updatedListing;
+	return { ...updatedListing, price: updatedListing.price / 100 };
 };
 
 exports.getSellerListingsBySellerId = async (sellerId) => {

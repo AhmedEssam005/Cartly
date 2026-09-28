@@ -3,6 +3,7 @@ const catalogController = require("./catalog.controller");
 const isAuth = require("../../middlewares/isAuth");
 const isAdmin = require("../../middlewares/isAdmin");
 const commonValidator = require("../../middlewares/commonValidator");
+const upload = require("../../configs/multer");
 const router = require("express").Router();
 
 router.get(
@@ -41,6 +42,7 @@ router.get(
 
 router.post(
 	"/",
+	upload.array("images", 10),
 	isAuth,
 	isAdmin,
 	catalogValidator.createCatalogProductValidator,
@@ -50,6 +52,7 @@ router.post(
 
 router.put(
 	"/:productId",
+	upload.array("images", 10),
 	isAuth,
 	isAdmin,
 	catalogValidator.updateCatalogProductValidator,

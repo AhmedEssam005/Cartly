@@ -5,6 +5,7 @@ const commonValidator = require("../../middlewares/commonValidator");
 const isAuth = require("../../middlewares/isAuth");
 const isAdmin = require("../../middlewares/isAdmin");
 const isSeller = require("../../middlewares/isSeller");
+const upload = require("../../configs/multer");
 
 router.get(
 	"/seller",
@@ -22,7 +23,7 @@ router.get(
 router.get(
 	"/:submissionId",
 	isAuth,
-    isAdmin,
+	isAdmin,
 	catalogSubmissionValidator.getCatalogSubmissionByIdValidator,
 	commonValidator,
 	catalogSubmissionController.getCatalogSubmissionById,
@@ -39,8 +40,9 @@ router.patch(
 
 router.post(
 	"/",
+	upload.array("images", 10),
 	isAuth,
-    isSeller,
+	isSeller,
 	catalogSubmissionValidator.createCatalogSubmissionValidator,
 	commonValidator,
 	catalogSubmissionController.createCatalogSubmission,
@@ -54,6 +56,5 @@ router.patch(
 	commonValidator,
 	catalogSubmissionController.approveCatalogSubmission,
 );
-
 
 module.exports = router;

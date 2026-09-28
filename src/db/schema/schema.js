@@ -314,7 +314,7 @@ const sellerListings = pgTable(
 		sku: varchar("sku", {
 			length: 64,
 		}).notNull(),
-		
+
 		sellerId: uuid("seller_id")
 			.notNull()
 			.references(() => sellerInfo.userId),
@@ -792,7 +792,7 @@ const reviews = pgTable(
 
 		rating: smallint("rating").notNull(),
 
-		comment: text("comment").notNull(),
+		comment: text("comment"),
 
 		createdAt: timestamp("created_at", {
 			withTimezone: true,

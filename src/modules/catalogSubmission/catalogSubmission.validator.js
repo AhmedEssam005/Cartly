@@ -46,12 +46,6 @@ exports.createCatalogSubmissionValidator = [
 		.withMessage("categories must be a non-empty array"),
 
 	body("categories.*").isInt().withMessage("each category must be an integer"),
-
-	body("images")
-		.isArray({ min: 1 })
-		.withMessage("images must be a non-empty array"),
-
-	body("images.*").isString().withMessage("each image must be a string (URL)"),
 ];
 
 exports.approveCatalogSubmissionValidator = [

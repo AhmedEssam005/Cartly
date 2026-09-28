@@ -164,7 +164,7 @@ exports.updateCatalogProduct = async (productId, productData) => {
 			throw error;
 		}
 
-		if (images !== undefined) {
+		if (images && images.length > 0) {
 			await trx
 				.delete(productImages)
 				.where(eq(productImages.catalogProductId, productId));

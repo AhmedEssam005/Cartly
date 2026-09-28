@@ -1,6 +1,6 @@
 const catalogSubmissionService = require("./catalogSubmission.service");
 const logger = require("../../configs/logger");
-
+const uploadImages = require("../../utils/uploadImages");
 exports.getCatalogSubmissionById = async (req, res, next) => {
 	try {
 		const { submissionId } = req.params;
@@ -54,10 +54,21 @@ exports.rejectCatalogSubmission = async (req, res, next) => {
 
 exports.createCatalogSubmission = async (req, res, next) => {
 	try {
+		if (!req.files || req.files.length === 0) {
+			const error = new Error("At least one image is required");
+			error.statusCode = 400;
+			throw error;
+		}
+		const uploadedImages = await uploadImages(
+			req.files,
+			"Cartly",
+			"catalog-submissions",
+		);
 		const newSubmission =
 			await catalogSubmissionService.createCatalogSubmission({
 				...req.body,
 				sellerId: req.user.id,
+				images: uploadedImages,
 			});
 		logger.info(
 			`Created new catalog submission with ID: ${newSubmission.submissionId}`,

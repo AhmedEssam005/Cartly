@@ -58,14 +58,7 @@ exports.createCatalogProductValidator = [
 		.withMessage(
 			"GTIN is required and must be a valid string with at least 8 characters",
 		),
-	body("images")
-		.isArray({ min: 1 })
-		.withMessage(
-			"Images are required and must be an array with at least one element",
-		),
-	body("images.*")
-		.isString()
-		.withMessage("Each image must be a valid string (URL)"),
+
 	body("productCategories")
 		.isArray({ min: 1 })
 		.withMessage(
@@ -96,10 +89,6 @@ exports.updateCatalogProductValidator = [
 		.withMessage(
 			"GTIN is required and must be a valid string with at least 8 characters",
 		),
-	body("images")
-		.optional()
-		.isArray({ min: 1 })
-		.withMessage("Images must be an array with at least one element"),
 	body("productCategories")
 		.optional()
 		.isArray({ min: 1 })

@@ -1,4 +1,5 @@
 const catalogService = require("./catalog.service");
+const uploadImages = require("../../utils/uploadImages");
 const logger = require("../../configs/logger");
 
 exports.getAllBrands = async (req, res, next) => {
@@ -70,6 +71,17 @@ exports.getCatalogProducts = async (req, res, next) => {
 exports.createCatalogProduct = async (req, res, next) => {
 	try {
 		const productData = req.body;
+		if (!req.files || req.files.length === 0) {
+			const error = new Error("At least one image is required");
+			error.statusCode = 400;
+			throw error;
+		}
+		const uploadedImages = await uploadImages(
+			req.files,
+			"Cartly",
+			"catalog-products",
+		);
+		productData.images = uploadedImages;
 		const newProduct = await catalogService.createCatalogProduct(productData);
 		logger.info(
 			`Created new catalog product with ID: ${newProduct.catalogProductId}`,
@@ -84,6 +96,11 @@ exports.updateCatalogProduct = async (req, res, next) => {
 	try {
 		const { productId } = req.params;
 		const productData = req.body;
+		const uploadedImages =
+			req.files?.length === 0
+				? []
+				: await uploadImages(req.files, "Cartly", "catalog-products");
+		productData.images = uploadedImages;
 		const updatedProduct = await catalogService.updateCatalogProduct(
 			productId,
 			productData,
