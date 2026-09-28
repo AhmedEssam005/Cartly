@@ -28,8 +28,12 @@ module.exports = async (files, bucket, folder) => {
 				contentType: "image/webp",
 			});
 			const publicUrl = getPublicUrl(bucket, path);
-			uploadedImages.push(publicUrl);
+			uploadedImages.push({
+				path,
+				publicUrl,
+			});
 		}
+		return uploadedImages;
 	} catch (error) {
 		await Promise.all(
 			uploadedImages.map((img) => deleteImage(bucket, img.path)),

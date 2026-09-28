@@ -42,9 +42,9 @@ router.get(
 
 router.post(
 	"/",
-	upload.array("images", 10),
 	isAuth,
 	isAdmin,
+	upload.array("images", 10),
 	catalogValidator.createCatalogProductValidator,
 	commonValidator,
 	catalogController.createCatalogProduct,
@@ -52,9 +52,9 @@ router.post(
 
 router.put(
 	"/:productId",
-	upload.array("images", 10),
 	isAuth,
 	isAdmin,
+	upload.array("images", 10),
 	catalogValidator.updateCatalogProductValidator,
 	commonValidator,
 	catalogController.updateCatalogProduct,

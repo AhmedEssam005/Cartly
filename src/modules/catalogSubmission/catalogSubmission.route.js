@@ -40,9 +40,9 @@ router.patch(
 
 router.post(
 	"/",
-	upload.array("images", 10),
 	isAuth,
 	isSeller,
+	upload.array("images", 10),
 	catalogSubmissionValidator.createCatalogSubmissionValidator,
 	commonValidator,
 	catalogSubmissionController.createCatalogSubmission,

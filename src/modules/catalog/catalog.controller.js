@@ -81,6 +81,7 @@ exports.createCatalogProduct = async (req, res, next) => {
 			"Cartly",
 			"catalog-products",
 		);
+		uploadedImages.map((img) => img.publicUrl);
 		productData.images = uploadedImages;
 		const newProduct = await catalogService.createCatalogProduct(productData);
 		logger.info(
@@ -96,11 +97,15 @@ exports.updateCatalogProduct = async (req, res, next) => {
 	try {
 		const { productId } = req.params;
 		const productData = req.body;
-		const uploadedImages =
-			req.files?.length === 0
-				? []
-				: await uploadImages(req.files, "Cartly", "catalog-products");
-		productData.images = uploadedImages;
+		if (req.files && req.files.length > 0) {
+			const uploadedImages = await uploadImages(
+				req.files,
+				"Cartly",
+				"catalog-products",
+			);
+			uploadedImages.map((img) => img.publicUrl);
+			productData.images = uploadedImages;
+		}
 		const updatedProduct = await catalogService.updateCatalogProduct(
 			productId,
 			productData,
