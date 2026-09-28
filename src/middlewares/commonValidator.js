@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
 	if (!errors.isEmpty()) {
 		const error = new Error("Validation failed");
 		error.statusCode = 422;
-		error.details = errors.array();
+		error.detail = errors.array();
 		return next(error);
 	}
 	next();

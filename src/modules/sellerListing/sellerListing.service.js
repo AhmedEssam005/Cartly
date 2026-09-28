@@ -30,13 +30,13 @@ exports.addSellerListing = async (sellerListingData) => {
 		throw error;
 	}
 
-	const newListing = await db
+	const [newListing] = await db
 		.insert(sellerListings)
 		.values({
 			sellerId,
 			sku,
 			catalogProductId,
-			price: Number(price) * 100, // Convert price to piasters
+			price: Math.round(Number(price) * 100), // Convert price to piasters
 			inventory,
 		})
 		.returning();
@@ -45,11 +45,11 @@ exports.addSellerListing = async (sellerListingData) => {
 
 exports.updateSellerListing = async (sellerListingData) => {
 	const { listingId, sellerId, sku, price, inventory } = sellerListingData;
-	const updatedListing = await db
+	const [updatedListing] = await db
 		.update(sellerListings)
 		.set({
 			sku,
-			price: Number(price) * 100, // Convert price to piasters
+			price: Math.round(Number(price) * 100), // Convert price to piasters
 			inventory,
 		})
 		.where(
@@ -59,6 +59,11 @@ exports.updateSellerListing = async (sellerListingData) => {
 			),
 		)
 		.returning();
+	if (!updatedListing) {
+		const error = new Error("Listing not found");
+		error.statusCode = 404;
+		throw error;
+	}
 	return updatedListing;
 };
 
@@ -69,7 +74,7 @@ exports.getSellerListingsBySellerId = async (sellerId) => {
 			listingId: sellerListings.listingId,
 			sellerId: sellerListings.sellerId,
 			sku: sellerListings.sku,
-			price: sellerListings.price,
+			price: sellerListings.price / 100, // Convert price from piasters to dollars
 			inventory: sellerListings.inventory,
 			isActive: sellerListings.isActive,
 			image: productImages.imageUrl,
@@ -89,13 +94,13 @@ exports.getSellerListingsBySellerId = async (sellerId) => {
 		.where(eq(sellerListings.sellerId, sellerId));
 	return listings;
 };
-exports.getListingById = async (listingId) => {
+exports.getListingById = async (listingId, sellerId) => {
 	const [listing] = await db
 		.select({
 			listingId: sellerListings.listingId,
 			sellerId: sellerListings.sellerId,
 			sku: sellerListings.sku,
-			price: sellerListings.price,
+			price: sellerListings.price / 100, // Convert price from piasters to dollars
 			isActive: sellerListings.isActive,
 			inventory: sellerListings.inventory,
 
@@ -110,7 +115,12 @@ exports.getListingById = async (listingId) => {
 			catalogProducts,
 			eq(sellerListings.catalogProductId, catalogProducts.catalogProductId),
 		)
-		.where(eq(sellerListings.listingId, listingId));
+		.where(
+			and(
+				eq(sellerListings.listingId, listingId),
+				eq(sellerListings.sellerId, sellerId),
+			),
+		);
 
 	if (!listing) {
 		const error = new Error("Listing not found");

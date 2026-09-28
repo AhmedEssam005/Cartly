@@ -29,7 +29,7 @@ exports.updateSellerListing = async (req, res, next) => {
 	}
 };
 
-exports.getSellerListingsBySellerId = async (req, res, next) => { 
+exports.getSellerListingsBySellerId = async (req, res, next) => {
 	try {
 		const listings = await sellerListingService.getSellerListingsBySellerId(
 			req.user.id,
@@ -43,7 +43,10 @@ exports.getSellerListingsBySellerId = async (req, res, next) => {
 exports.getListingById = async (req, res, next) => {
 	try {
 		const listingId = req.params.listingId;
-		const listing = await sellerListingService.getListingById(listingId);
+		const listing = await sellerListingService.getListingById(
+			listingId,
+			req.user.id,
+		);
 		res.status(200).json(listing);
 	} catch (err) {
 		next(err);
