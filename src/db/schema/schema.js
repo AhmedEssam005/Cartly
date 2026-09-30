@@ -535,11 +535,7 @@ const orders = pgTable(
 		userId: uuid("user_id")
 			.notNull()
 			.references(() => profile.profileId),
-
-		totalPrice: bigint("total_price", {
-			mode: "number",
-		}).notNull(),
-
+			
 		status: orderStatus("status").notNull().default("pending"),
 
 		orderedAt: timestamp("ordered_at", {
