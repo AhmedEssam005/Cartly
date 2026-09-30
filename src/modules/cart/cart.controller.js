@@ -3,7 +3,7 @@ const logger = require("../../configs/logger");
 
 exports.getCart = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		const cartItems = await cartService.getCart({ userId, sessionToken });
 		res.status(200).json(cartItems);
@@ -17,7 +17,7 @@ exports.getCart = async (req, res, next) => {
 
 exports.addToCart = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		const { listingId, quantity } = req.body;
 		const cartItem = await cartService.addToCart({
@@ -26,6 +26,14 @@ exports.addToCart = async (req, res, next) => {
 			listingId,
 			quantity,
 		});
+		const newToken = cartItem.sessionToken;
+		if (newToken) {
+			res.cookie("sessionToken", newToken, {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "lax",
+			});
+		}
 		res.status(201).json(cartItem);
 		logger.info(
 			`Item added to cart successfully for userId: ${userId}, sessionToken: ${sessionToken}, listingId: ${listingId}, quantity: ${quantity}`,
@@ -37,7 +45,7 @@ exports.addToCart = async (req, res, next) => {
 
 exports.removeFromCart = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		const { listingId } = req.params;
 		const deletedItem = await cartService.removeFromCart(
@@ -55,7 +63,7 @@ exports.removeFromCart = async (req, res, next) => {
 
 exports.decreaseCartItemQuantityBy1 = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		const { listingId } = req.params;
 		const updatedItem = await cartService.decreaseCartItemQuantityBy1(
@@ -73,9 +81,9 @@ exports.decreaseCartItemQuantityBy1 = async (req, res, next) => {
 
 exports.mergeGuestCartWithUserCart = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
-		const mergedCart = await cartService.mergeGuestCartWithUserCart({
+		const mergedCart = await cartService.mergeGuestCartToUserCart({
 			userId,
 			sessionToken,
 		});
@@ -90,7 +98,7 @@ exports.mergeGuestCartWithUserCart = async (req, res, next) => {
 
 exports.clearCart = async (req, res, next) => {
 	try {
-		const userId = req.user ? req.user.userId : null;
+		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		await cartService.clearCart({ userId, sessionToken });
 		res.status(204).send();

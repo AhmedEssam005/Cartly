@@ -6,7 +6,7 @@ const {
 	catalogProducts,
 	productImages,
 } = require("../../db/schema/schema");
-const { eq, and, or } = require("drizzle-orm");
+const { eq, and, sql } = require("drizzle-orm");
 const crypto = require("crypto");
 
 const identifyCartOwner = ({ userId, sessionToken }) => {
@@ -51,7 +51,7 @@ exports.getCart = async ({ userId, sessionToken }) => {
 				cartId: cart.cartId,
 				listingId: sellerListings.listingId,
 				quantity: cartListing.quantity,
-				price: sellerListings.price,
+				price: sql`${sellerListings.price} / 100.0`.mapWith(Number),
 				title: catalogProducts.title,
 				brand: catalogProducts.brand,
 				imageUrl: productImages.imageUrl,
@@ -74,7 +74,7 @@ exports.getCart = async ({ userId, sessionToken }) => {
 				),
 			)
 			.where(eq(cart.cartId, userCart.cartId));
-		return userCart;
+		return userCartItems;
 	}
 
 	return [];
@@ -213,7 +213,8 @@ exports.removeFromCart = async ({ userId, sessionToken }, listingId) => {
 					eq(cartListing.cartId, cartId),
 					eq(cartListing.listingId, listingId),
 				),
-			);
+			)
+			.returning();
 		if (!deletedItem) {
 			const error = new Error("Item not found in cart");
 			error.statusCode = 404;
@@ -240,7 +241,8 @@ exports.decreaseCartItemQuantityBy1 = async (
 			const [{ cartId }] = await tx
 				.select(cart.cartId)
 				.from(cart)
-				.where(ownerCondition);
+				.where(ownerCondition)
+				.returning();
 			if (!cartId) {
 				const error = new Error("Cart not found");
 				error.statusCode = 404;
@@ -284,7 +286,13 @@ exports.decreaseCartItemQuantityBy1 = async (
 exports.mergeGuestCartToUserCart = async (userId, sessionToken) => {
 	return await db.transaction(async (tx) => {
 		const guestCart = await tx
-			.select()
+			.select({
+				cartId: cart.cartId,
+				listingId: sellerListings.listingId,
+				quantity: cartListing.quantity,
+				inventory: sellerListings.inventory,
+				isActive: sellerListings.isActive,
+			})
 			.from(cart)
 			.innerJoin(cartListing, eq(cart.cartId, cartListing.cartId))
 			.innerJoin(

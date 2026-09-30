@@ -49,7 +49,7 @@ router.post(
 	opIsAuth,
 	cartValidator.mergeCartValidation,
 	commonValidator,
-	cartController.mergeCart,
+	cartController.mergeGuestCartWithUserCart,
 );
 
 module.exports = router;

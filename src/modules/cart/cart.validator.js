@@ -2,7 +2,7 @@ const { body, param, oneOf, cookie } = require("express-validator");
 
 const tokenUserIdValidation = [
 	oneOf([
-		body("userId").notEmpty().isUUID(),
+		body("user.id").notEmpty().isUUID(),
 		cookie("sessionToken").isString().notEmpty(),
 	]),
 ];
