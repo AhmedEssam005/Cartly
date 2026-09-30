@@ -558,7 +558,6 @@ const orders = pgTable(
 	},
 	(table) => [
 		index("idx_orders_user_created_at").on(table.userId, table.createdAt),
-		check("chk_orders_total_price_nonnegative", sql`${table.totalPrice} >= 0`),
 	],
 );
 

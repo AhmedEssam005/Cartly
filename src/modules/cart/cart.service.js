@@ -115,7 +115,11 @@ exports.addToCart = async ({ userId, sessionToken }, listingId, quantity) => {
 				!listing.isActive ||
 				listing.inventory < Number(quantity) + (existingCartItem?.quantity || 0)
 			) {
-				throw new Error("Listing not found or insufficient inventory");
+				const error = new Error(
+					"Listing not found or insufficient inventory",
+				);
+				error.statusCode = 400;
+				throw error;
 			}
 
 			let newCartItem;
@@ -170,7 +174,11 @@ exports.addToCart = async ({ userId, sessionToken }, listingId, quantity) => {
 				!listing.isActive ||
 				listing.inventory < Number(quantity) + (existingCartItem?.quantity || 0)
 			) {
-				throw new Error("Listing not found or insufficient inventory");
+				const error = new Error(
+					"Listing not found or insufficient inventory",
+				);
+				error.statusCode = 400;
+				throw error;
 			}
 			let newCartItem;
 			if (existingCartItem) {
@@ -197,15 +205,16 @@ exports.removeFromCart = async ({ userId, sessionToken }, listingId) => {
 			owner.type === "user"
 				? eq(cart.userId, owner.userId)
 				: eq(cart.sessionToken, owner.sessionToken);
-		const [{ cartId }] = await db
-			.select(cart.cartId)
+		const [cartRow] = await db
+			.select({ cartId: cart.cartId })
 			.from(cart)
 			.where(ownerCondition);
-		if (!cartId) {
+		if (!cartRow) {
 			const error = new Error("Cart not found");
 			error.statusCode = 404;
 			throw error;
 		}
+		const cartId = cartRow.cartId;
 		const [deletedItem] = await db
 			.delete(cartListing)
 			.where(
@@ -238,16 +247,16 @@ exports.decreaseCartItemQuantityBy1 = async (
 				? eq(cart.userId, owner.userId)
 				: eq(cart.sessionToken, owner.sessionToken);
 		return await db.transaction(async (tx) => {
-			const [{ cartId }] = await tx
-				.select(cart.cartId)
+			const [cartRow] = await tx
+				.select({ cartId: cart.cartId })
 				.from(cart)
-				.where(ownerCondition)
-				.returning();
-			if (!cartId) {
+				.where(ownerCondition);
+			if (!cartRow) {
 				const error = new Error("Cart not found");
 				error.statusCode = 404;
 				throw error;
 			}
+			const cartId = cartRow.cartId;
 			const [existingCartItem] = await tx
 				.select()
 				.from(cartListing)
@@ -371,8 +380,11 @@ exports.clearCart = async ({ userId, sessionToken }) => {
 			owner.type === "user"
 				? eq(cart.userId, owner.userId)
 				: eq(cart.sessionToken, owner.sessionToken);
-		const [{ cartId }] = await db.delete(cart).where(ownerCondition);
-		if (!cartId) {
+		const [deletedCart] = await db
+			.delete(cart)
+			.where(ownerCondition)
+			.returning({ cartId: cart.cartId });
+		if (!deletedCart) {
 			const error = new Error("Cart not found");
 			error.statusCode = 404;
 			throw error;

@@ -21,7 +21,8 @@ exports.getCatalogProductByIdValidator = [
 
 exports.getCatalogProductByGtinValidator = [
 	param("gtin")
-		.isString({ min: 8 })
+		.isString()
+		.isLength({ min: 8 })
 		.withMessage("GTIN must be a valid string with at least 8 characters"),
 ];
 
@@ -54,9 +55,10 @@ exports.createCatalogProductValidator = [
 		.withMessage("Description must be a string"),
 	body("gtin")
 		.optional()
-		.isString({ min: 8 })
+		.isString()
+		.isLength({ min: 8 })
 		.withMessage(
-			"GTIN is required and must be a valid string with at least 8 characters",
+			"GTIN must be a valid string with at least 8 characters",
 		),
 
 	body("productCategories")
@@ -85,7 +87,8 @@ exports.updateCatalogProductValidator = [
 		.withMessage("Description must be a string"),
 	body("gtin")
 		.notEmpty()
-		.isString({ min: 8 })
+		.isString()
+		.isLength({ min: 8 })
 		.withMessage(
 			"GTIN is required and must be a valid string with at least 8 characters",
 		),

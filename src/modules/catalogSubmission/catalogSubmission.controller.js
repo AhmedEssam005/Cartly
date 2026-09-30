@@ -3,9 +3,12 @@ const logger = require("../../configs/logger");
 const uploadImages = require("../../utils/uploadImages");
 exports.getCatalogSubmissionById = async (req, res, next) => {
 	try {
-		const { submissionId } = req.params;
+		const submissionId = Number(req.params.submissionId);
 		const submission =
-			await catalogSubmissionService.getCatalogSubmissionById(submissionId);
+			await catalogSubmissionService.getCatalogSubmissionById(
+				submissionId,
+				req.user,
+			);
 		logger.info(`Retrieved catalog submission with ID: ${submissionId}`);
 		res.status(200).json(submission);
 	} catch (err) {

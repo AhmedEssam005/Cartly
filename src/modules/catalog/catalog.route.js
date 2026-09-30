@@ -17,19 +17,19 @@ router.get(
 router.get("/metadata/categories", isAuth, catalogController.getAllCategories);
 
 router.get(
-	"/:productId",
-	isAuth,
-	catalogValidator.getCatalogProductByIdValidator,
-	commonValidator,
-	catalogController.getCatalogProductById,
-);
-
-router.get(
 	"/gtin/:gtin",
 	isAuth,
 	catalogValidator.getCatalogProductByGtinValidator,
 	commonValidator,
 	catalogController.getCatalogProductByGtin,
+);
+
+router.get(
+	"/:productId",
+	isAuth,
+	catalogValidator.getCatalogProductByIdValidator,
+	commonValidator,
+	catalogController.getCatalogProductById,
 );
 
 router.get(

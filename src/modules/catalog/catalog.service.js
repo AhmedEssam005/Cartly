@@ -210,7 +210,9 @@ exports.softDeleteCatalogProduct = async (productId) => {
 		.returning();
 
 	if (!deletedProduct) {
-		throw new Error("Catalog product not found");
+		const error = new Error("Catalog product not found");
+		error.statusCode = 404;
+		throw error;
 	}
 
 	return deletedProduct;

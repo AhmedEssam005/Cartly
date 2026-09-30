@@ -35,7 +35,7 @@ const paymentStatus = pgEnum("payment_status", [
 	"partially_refunded",
 ]);
 
-const paymentProvider = pgEnum("payment_provider", ["paymob"]);
+const paymentProvider = pgEnum("payment_provider", ["paymob", "manual"]);
 
 module.exports = {
 	userRole,

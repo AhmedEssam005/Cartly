@@ -67,7 +67,9 @@ exports.registerUser = async (userData) => {
 				userId: data.user.id,
 			},
 		);
-		throw new Error("Failed to register your account. Please try again.");
+		const regError = new Error("Failed to register your account. Please try again.");
+		regError.statusCode = 400;
+		throw regError;
 	}
 };
 

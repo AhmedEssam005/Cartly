@@ -7,15 +7,17 @@ const {
 	catalogProducts,
 	catalogProductCategories,
 	productImages,
+	categories,
+	profile,
 } = require("../../db/schema/schema");
 
 const { eq, asc, and } = require("drizzle-orm");
 
-exports.getCatalogSubmissionById = async (submissionId) => {
+exports.getCatalogSubmissionById = async (submissionId, user) => {
 	const [submission] = await db
 		.select()
 		.from(catalogSubmissions)
-		.where(eq(catalogSubmissions.submissionId, submissionId));
+		.where(eq(catalogSubmissions.submissionId, Number(submissionId)));
 
 	if (!submission) {
 		const error = new Error("Catalog submission not found");
@@ -23,7 +25,43 @@ exports.getCatalogSubmissionById = async (submissionId) => {
 		throw error;
 	}
 
-	return submission;
+	if (user && user.id && submission.sellerId !== user.id) {
+		const [userProfile] = await db
+			.select({ role: profile.role })
+			.from(profile)
+			.where(eq(profile.profileId, user.id));
+
+		if (!userProfile || userProfile.role !== "admin") {
+			const error = new Error("Forbidden: You cannot view this submission");
+			error.statusCode = 403;
+			throw error;
+		}
+	}
+
+	const images = await db
+		.select()
+		.from(catalogSubmissionsImages)
+		.where(eq(catalogSubmissionsImages.submissionId, submissionId))
+		.orderBy(asc(catalogSubmissionsImages.displayOrder));
+
+	const categoriesList = await db
+		.select({
+			categoryId: categories.categoryId,
+			name: categories.name,
+			slug: categories.slug,
+		})
+		.from(catalogSubmissionCategories)
+		.innerJoin(
+			categories,
+			eq(catalogSubmissionCategories.categoryId, categories.categoryId),
+		)
+		.where(eq(catalogSubmissionCategories.submissionId, submissionId));
+
+	return {
+		...submission,
+		images,
+		categories: categoriesList,
+	};
 };
 
 exports.getSellerCatalogSubmissions = async (sellerId) => {

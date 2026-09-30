@@ -6,6 +6,21 @@ const isAuth = require("../../middlewares/isAuth");
 
 router.use(isAuth);
 
+router.get("/", profileController.getProfile);
+router.patch(
+	"/",
+	profileValidator.updateProfileValidator,
+	commonValidator,
+	profileController.updateProfile,
+);
+
+router.post(
+	"/seller-kyc",
+	profileValidator.sellerKycValidator,
+	commonValidator,
+	profileController.submitSellerKyc,
+);
+
 router
 	.route("/addresses")
 	.get(profileController.getAllAddresses)

@@ -23,7 +23,6 @@ router.get(
 router.get(
 	"/:submissionId",
 	isAuth,
-	isAdmin,
 	catalogSubmissionValidator.getCatalogSubmissionByIdValidator,
 	commonValidator,
 	catalogSubmissionController.getCatalogSubmissionById,

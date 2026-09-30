@@ -20,12 +20,11 @@ exports.addToCart = async (req, res, next) => {
 		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
 		const { listingId, quantity } = req.body;
-		const cartItem = await cartService.addToCart({
-			userId,
-			sessionToken,
-			listingId,
-			quantity,
-		});
+		const cartItem = await cartService.addToCart(
+			{ userId, sessionToken },
+			Number(listingId),
+			Number(quantity),
+		);
 		const newToken = cartItem.sessionToken;
 		if (newToken) {
 			res.cookie("sessionToken", newToken, {
@@ -83,10 +82,10 @@ exports.mergeGuestCartWithUserCart = async (req, res, next) => {
 	try {
 		const userId = req.user ? req.user.id : null;
 		const sessionToken = req.cookies.sessionToken || null;
-		const mergedCart = await cartService.mergeGuestCartToUserCart({
+		const mergedCart = await cartService.mergeGuestCartToUserCart(
 			userId,
 			sessionToken,
-		});
+		);
 		res.status(201).json(mergedCart);
 		logger.info(
 			`Guest cart merged with user cart successfully for userId: ${userId}, sessionToken: ${sessionToken}`,

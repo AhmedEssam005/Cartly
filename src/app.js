@@ -10,6 +10,17 @@ const catalogRoutes = require("./modules/catalog/catalog.route");
 const submissionRoutes = require("./modules/catalogSubmission/catalogSubmission.route");
 const sellerListingRoutes = require("./modules/sellerListing/sellerListing.route");
 const cartRoutes = require("./modules/cart/cart.route");
+const orderRoutes = require("./modules/order/order.route");
+const {
+	orderPaymentRouter,
+	adminPaymentRouter,
+} = require("./modules/payment/payment.route");
+const adminRoutes = require("./modules/admin/admin.route");
+const storefrontRoutes = require("./modules/storefront/storefront.route");
+const {
+	listingReviewsRouter,
+	reviewsRouter,
+} = require("./modules/review/review.route");
 const logger = require("./configs/logger");
 const app = express();
 
@@ -25,6 +36,13 @@ app.use("/api/catalog", catalogRoutes);
 app.use("/api/catalog-submissions", submissionRoutes);
 app.use("/api/seller-listings", sellerListingRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/orders", orderPaymentRouter);
+app.use("/api/admin/payments", adminPaymentRouter);
+app.use("/api/admin", adminRoutes);
+app.use("/api/storefront", storefrontRoutes);
+app.use("/api/listings", listingReviewsRouter);
+app.use("/api/reviews", reviewsRouter);
 
 app.use("/", (req, res) => {
 	res.status(404).json({ message: "Route not found" });

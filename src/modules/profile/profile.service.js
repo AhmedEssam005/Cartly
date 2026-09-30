@@ -1,5 +1,5 @@
 const db = require("../../db/index");
-const { profile, addresses } = require("../../db/schema/schema");
+const { profile, addresses, sellerInfo } = require("../../db/schema/schema");
 const logger = require("../../configs/logger");
 const { eq, and, count } = require("drizzle-orm");
 
@@ -168,4 +168,106 @@ exports.setDefaultAddress = async (addressId, profileId) => {
 	} catch (error) {
 		throw error;
 	}
+};
+
+exports.getProfile = async (userId) => {
+	const [userProfile] = await db
+		.select()
+		.from(profile)
+		.where(eq(profile.profileId, userId));
+
+	if (!userProfile) {
+		const error = new Error("Profile not found");
+		error.statusCode = 404;
+		throw error;
+	}
+
+	const [seller] = await db
+		.select()
+		.from(sellerInfo)
+		.where(eq(sellerInfo.userId, userId));
+
+	return {
+		...userProfile,
+		sellerInfo: seller || null,
+	};
+};
+
+exports.updateProfile = async (userId, data) => {
+	const updateData = {
+		updatedAt: new Date(),
+	};
+
+	if (data.firstName !== undefined) {
+		updateData.firstName = data.firstName;
+	}
+	if (data.lastName !== undefined) {
+		updateData.lastName = data.lastName;
+	}
+
+	const [updatedProfile] = await db
+		.update(profile)
+		.set(updateData)
+		.where(eq(profile.profileId, userId))
+		.returning();
+
+	if (!updatedProfile) {
+		const error = new Error("Profile not found");
+		error.statusCode = 404;
+		throw error;
+	}
+
+	return updatedProfile;
+};
+
+exports.submitSellerKyc = async (userId, kycData) => {
+	const { nationalId, storeName, tin, bankIban, storeLogo } = kycData;
+
+	const [existingSeller] = await db
+		.select()
+		.from(sellerInfo)
+		.where(eq(sellerInfo.userId, userId));
+
+	if (existingSeller) {
+		if (existingSeller.kycStatus === "approved") {
+			const error = new Error("Seller KYC is already approved");
+			error.statusCode = 400;
+			throw error;
+		}
+		if (existingSeller.kycStatus === "pending") {
+			const error = new Error("Seller KYC application is already pending review");
+			error.statusCode = 400;
+			throw error;
+		}
+		const [updated] = await db
+			.update(sellerInfo)
+			.set({
+				nationalId,
+				storeName,
+				tin,
+				bankIban,
+				storeLogo,
+				kycStatus: "pending",
+				updatedAt: new Date(),
+			})
+			.where(eq(sellerInfo.userId, userId))
+			.returning();
+
+		return updated;
+	}
+
+	const [newSeller] = await db
+		.insert(sellerInfo)
+		.values({
+			userId,
+			nationalId,
+			storeName,
+			tin,
+			bankIban,
+			storeLogo,
+			kycStatus: "pending",
+		})
+		.returning();
+
+	return newSeller;
 };
