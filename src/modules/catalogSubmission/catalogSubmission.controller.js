@@ -64,12 +64,12 @@ exports.createCatalogSubmission = async (req, res, next) => {
 			"Cartly",
 			"catalog-submissions",
 		);
-		uploadedImages.map((img) => img.publicUrl);
+		const imageUrls = uploadedImages.map((img) => img.publicUrl);
 		const newSubmission =
 			await catalogSubmissionService.createCatalogSubmission({
 				...req.body,
 				sellerId: req.user.id,
-				images: uploadedImages,
+				images: imageUrls,
 			});
 		logger.info(
 			`Created new catalog submission with ID: ${newSubmission.submissionId}`,

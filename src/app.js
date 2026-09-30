@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 const morganMiddleware = require("./middlewares/morgan");
 const authRoutes = require("./modules/auth/auth.routes");
 const categoryRoutes = require("./modules/category/category.route");
@@ -8,11 +9,13 @@ const profileRoutes = require("./modules/profile/profile.route");
 const catalogRoutes = require("./modules/catalog/catalog.route");
 const submissionRoutes = require("./modules/catalogSubmission/catalogSubmission.route");
 const sellerListingRoutes = require("./modules/sellerListing/sellerListing.route");
+const cartRoutes = require("./modules/cart/cart.route");
 const logger = require("./configs/logger");
 const app = express();
 
 app.use(cors());
 app.use(helmet());
+app.use(cookieParser());
 app.use(morganMiddleware);
 app.use(express.json());
 app.use("/api/auth", authRoutes);
@@ -21,6 +24,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/catalog", catalogRoutes);
 app.use("/api/catalog-submissions", submissionRoutes);
 app.use("/api/seller-listings", sellerListingRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.use("/", (req, res) => {
 	res.status(404).json({ message: "Route not found" });

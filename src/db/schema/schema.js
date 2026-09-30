@@ -438,7 +438,9 @@ const cartListing = pgTable(
 			mode: "number",
 		})
 			.notNull()
-			.references(() => cart.cartId),
+			.references(() => cart.cartId, {
+				onDelete: "cascade",
+			}),
 
 		listingId: bigint("listing_id", {
 			mode: "number",
