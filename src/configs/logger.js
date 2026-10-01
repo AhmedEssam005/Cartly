@@ -37,7 +37,7 @@ const transports = [
 
 const logger = winston.createLogger({
 	transports,
-	level: process.env.NODE_ENV === "development" ? "debug" : "info",
+	level: process.env.NODE_ENV === "development" ? "debug" : "http",
 });
 
 module.exports = logger;
