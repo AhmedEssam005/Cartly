@@ -72,13 +72,13 @@ SUPABASE_SECRET_KEY=...             # Supabase service role key (keep private)
 ### Option 1: Pull from Docker Hub
 
 ```bash
-docker pull ahmedessam05/cartly
+docker pull ahmedessam05/cartly:V1.0
 
 # 1. Apply migrations (first time only)
-docker run --rm --env-file .env ahmedessam05/cartly npm run db:migrate
+docker run --rm --env-file .env ahmedessam05/cartly:V1.0 npm run db:migrate
 
 # 2. Start the app
-docker run -p 3000:3000 --env-file .env ahmedessam05/cartly
+docker run -p 3000:3000 --env-file .env ahmedessam05/cartly:V1.0
 ```
 
 ### Option 2: Build the Docker image yourself
